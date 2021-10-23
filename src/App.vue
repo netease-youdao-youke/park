@@ -1,8 +1,17 @@
-<script setup lang="ts">
-// import HelloWorld from './components/HelloWorld.vue'
-import Dashboard from './components/Dashboard.vue';
-</script>
 <template>
-  <!-- <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" /> -->
-  <Dashboard></Dashboard>
+   <a-config-provider :locale="locale">
+     <router-view></router-view>
+  </a-config-provider>
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+import zhCN from "ant-design-vue/lib/locale-provider/zh_CN";
+export default defineComponent({
+  name: "App",
+  setup() {
+    return {
+      locale: zhCN
+    };
+  }
+});
+</script>
