@@ -1,12 +1,15 @@
 
 <template>
   <div class="dashboard-container">
-    <div class="content" v-for="item, index in [1,2]" :key="index">
-      <p class="title">负一层</p>
+    <div class="content" v-for="item, index in data" :key="index">
+      <p class="title">
+        <FireOutlined :style="{ color: '#FE525E'}" />
+        {{item.floor}}
+      </p>
       <ul class="ul-wrapper">
-         <li class="list-item" v-for="list, idx in [1,2,3]" :key="idx">
-           <span>A座余位：</span>
-           <span>34个</span>
+         <li class="list-item" v-for="list, idx in item.data" :key="idx">
+           <span>{{list.floorName}}余位：</span>
+           <span><strong>{{list.remain}}</strong> 个</span>
          </li>
        </ul>
     </div>
@@ -15,6 +18,21 @@
 </template>
 
 <script lang="ts">
+import { FireOutlined } from '@ant-design/icons-vue'
+import { defineComponent, reactive } from "vue";
+export default defineComponent({
+  name: "App",
+  components: { FireOutlined },
+  props: {
+    data: {
+      type: Array,
+      default: () => []
+    }
+  },
+  setup() {
+
+  }
+});
 </script>
 
 <style scoped>
@@ -39,7 +57,6 @@
   content: '';
   height: 4px;
   width: 48px;
-  background: rgb(49 175 243 / 50%);
   border-radius: 16px;
 }
 
@@ -51,12 +68,8 @@
 	align-items: center;
 	flex-direction: column;
   margin-bottom: 20px;
-  /* border: 1px solid  rgb(49 175 243 / 20%); */
   border-radius: 16px;
-  background: linear-gradient(
-      180deg,
-      rgb(0,136,204, 0.5) 0.2%,
-      rgb(49 175 243 / 20%) 80%
-    )
+  background: #FEE6E5;
+  color: #FE525E;
 }
 </style>
