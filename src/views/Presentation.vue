@@ -1,14 +1,11 @@
-<script setup lang="ts">
-import exampleVideo from "/output.mp4";
-import { ref, unref, onMounted } from "vue";
-import {
-	analyzeImage,
-	initToken,
-	reportVehicle,
-	setBaiduOpenToken,
-	setToken,
-	textToAudio,
-} from "../api";
+
+<script  setup lang="ts">
+import exampleVideo from '/output.mp4';
+import { ref, unref, onMounted, onUnmounted } from 'vue';
+import { analyzeImage, getParkingDetail, initToken, reportVehicle, setBaiduOpenToken, setToken, textToAudio } from '../api';
+import Dashboard from '../components/Dashboard.vue';
+import { DashboardOutlined } from '@ant-design/icons-vue';
+
 
 type VehicleInfo = {
 	type: "car" | "carplate";
@@ -22,9 +19,15 @@ type VehicleInfo = {
 };
 
 const count = ref(0);
-// const videoSrc = ref(exampleVideo);
+const title = ref("杭州网易地下车库A2停车信息")
+const parkingData = ref();
+const loopTimer = ref(0);
+
+const videoSrc = ref(exampleVideo);
 const videoRef = ref<HTMLVideoElement>();
 const canvasRef = ref<HTMLCanvasElement>();
+
+
 
 const DETECT_SWITCHER = false;
 
@@ -78,43 +81,44 @@ const drawVehicles = (infoArr: VehicleInfo[]) => {
 
 let lastTimeStamp = ref<null | number>(null);
 const handleTimeUpdate = async (e: Event) => {
-	const curTimeStamp = (e.timeStamp / 1000) | 0;
-	const realCanvas = unref(canvasRef);
-	const realVideo = unref(videoRef);
-	const realLastTimeStamp = unref(lastTimeStamp);
-	if (!realCanvas || !realVideo) {
-		return;
-	}
-	if (curTimeStamp % 10 === 0 && realLastTimeStamp !== curTimeStamp) {
-		realCanvas.height = realVideo.videoHeight ?? 0;
-		realCanvas.width = realVideo.videoWidth ?? 0;
-		lastTimeStamp.value = curTimeStamp;
-		const ctx = realCanvas.getContext("2d");
-		if (!ctx) {
-			return;
-		}
-		ctx.clearRect(0, 0, realCanvas.width, realCanvas.height);
-		ctx.drawImage(realVideo, 0, 0, realVideo.videoWidth ?? 0, realVideo.videoHeight ?? 0);
-		const url = realCanvas.toDataURL("image/jpeg", 1.0);
-		if (!DETECT_SWITCHER) {
-			console.warn("detect vehicle switcher close");
-		}
-		if (unref(count) >= 1) {
-			console.warn("over api limitation");
-			return;
-		}
-		let imageBase64 = url.replace(/\+/g, "%2B").replace(/\=/g, "&3D");
-		const analyzeData = await analyzeImage({
-			image: imageBase64,
-		});
-		count.value += 1;
-		console.log(analyzeData);
-		drawVehicles(analyzeData.vehicle_info);
-		await reportVehicle({
-			...analyzeData,
-			cameraId: "aaa",
-		});
-	}
+  const curTimeStamp = (e.timeStamp / 1000 | 0);
+  const realCanvas = unref(canvasRef);
+  const realVideo = unref(videoRef);
+  const realLastTimeStamp = unref(lastTimeStamp);
+  if (!realCanvas || !realVideo) {
+    return;
+  }
+  if (curTimeStamp % 10 === 0 && realLastTimeStamp !== curTimeStamp) {
+    realCanvas.height = realVideo.videoHeight ?? 0;
+    realCanvas.width = realVideo.videoWidth ?? 0;
+    lastTimeStamp.value = curTimeStamp;
+    const ctx = realCanvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+    ctx.clearRect(0, 0, realCanvas.width, realCanvas.height);
+    ctx.drawImage(realVideo, 0, 0, realVideo.videoWidth ?? 0, realVideo.videoHeight ?? 0);
+    const url = realCanvas.toDataURL("image/jpeg", 1.0);
+    if (!DETECT_SWITCHER) {
+      console.warn('detect vehicle switcher close');
+    }
+    if (unref(count) >= 1) {
+      console.warn('over api limitation');
+      return;
+    }
+    let imageBase64 = url.replace(/\+/g, "%2B").replace(/\=/g, "&3D");
+    return;
+    const analyzeData = await analyzeImage({
+      image: imageBase64,
+    });
+    count.value += 1;
+    console.log(analyzeData);
+    drawVehicles(analyzeData.vehicle_info);
+    await reportVehicle({
+      ...analyzeData,
+      cameraId: 'aaa',
+    });
+  }
 };
 
 const TTA = async () => {
@@ -127,34 +131,121 @@ const TTA = async () => {
 	};
 };
 
+const updateParkingInfo = async () => {
+  const res = await getParkingDetail({ parkLocationId: 1 });
+  console.log(res);
+  parkingData.value = res.data.parkFloorDetails;
+}
 onMounted(() => {
-	// TTA();
+  // TTA();
 });
+
+onMounted(() => {
+  loopTimer.value = window.setInterval(updateParkingInfo, 1000);
+});
+
+onUnmounted(() => {
+  window.clearInterval(loopTimer.value);
+});
+
 </script>
 
 <template>
-	<div class="presentation">
-		<video
-			id="presentation-video"
-			:autoplay="true"
-			controls
-			:src="videoSrc"
-			ref="videoRef"
-			@timeupdate="handleTimeUpdate"
-		></video>
-		<canvas id="presentation-canvas" ref="canvasRef"></canvas>
-	</div>
+  <div class="presentation">
+    <div class="left-part">
+      <div class="top-wrapper">
+        <DashboardOutlined :style="{ fontSize: '35px', color: '#fff' }"></DashboardOutlined>
+        <p class="title">实时余位</p>
+      </div>
+      <div class="body-wrapper">
+        <Dashboard :data="item" v-for="item in parkingData" :key="item.floor"></Dashboard>
+      </div>
+    </div>
+    <div class="right-part">
+      <div class="page-title">{{ title }}</div>
+      <p class="part-title">实时视频信息</p>
+      <video
+        id="presentation-video"
+        :autoplay="true"
+        controls
+        :src="videoSrc"
+        ref="videoRef"
+        @timeupdate="handleTimeUpdate"
+      ></video>
+      <p class="part-title">实时车辆检测(10 秒/次)</p>
+      <canvas id="presentation-canvas" ref="canvasRef"></canvas>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
 .presentation {
-	max-width: 100vw;
-	overflow: hidden;
-	#presentation-video {
-		width: 100%;
-	}
-	#presentation-canvas {
-		width: 100%;
-	}
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  .left-part {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    .top-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 80px;
+      background: #fe525e;
+    }
+
+    .top-wrapper .title {
+      margin: 0;
+      color: #fff;
+    }
+
+    .body-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+    }
+  }
+
+  .right-part {
+    min-width: 200px;
+    width: 40%;
+    height: 100%;
+    .page-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+      width: 100%;
+      padding: 15px;
+      background: #fe525e;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-weight: bold;
+    }
+    .part-title {
+      text-indent: 50px;
+      font-weight: bold;
+      margin: 0;
+      font-size: 16px;
+    }
+    #presentation-video {
+      width: 100%;
+      height: 40%;
+      object-fit: contain;
+    }
+    #presentation-canvas {
+      width: 100%;
+      height: 40%;
+      object-fit: contain;
+    }
+  }
 }
 </style>

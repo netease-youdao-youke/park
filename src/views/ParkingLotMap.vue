@@ -3,9 +3,11 @@
 </template>
 <script setup lang="ts">
 import '../../public/ooomap.min.js';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { getParkingDetail } from '../api';
 const mapContainer = ref<HTMLDivElement>();
 const OOOMap = ref<any>();
+const timer = ref(0);
 
 onMounted(() => {
   const map = new om.Map({
@@ -23,13 +25,20 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     map.view.resize();
   })
+  timer.value = window.setInterval(async () => {
+    console.log(await getParkingDetail({ parkLocationId: 1 }));
+  }, 1000);
+})
+
+onUnmounted(() => {
+  window.clearInterval(timer.value);
 })
 
 
 
 </script>
 <style lang="scss">
-#ooomap-container{
+#ooomap-container {
   width: 100vw;
   height: 720px;
 }

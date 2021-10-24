@@ -8,7 +8,7 @@ export const setToken = (latestToken: string) => {
 export const setBaiduOpenToken = (latestToken: string) => {
   baiduOpenToken = latestToken;
 }
-export const BCE_PROXY_HOST = "http://localhost:3001/bce";
+export const BCE_PROXY_HOST = "http://localhost:3001/baidubce";
 
 export const TSN_PROXY_HOST = "http://localhost:3001/tsn";
 
@@ -94,7 +94,7 @@ export const analyzeImage = async (param: {
   url?: string;
   image?: string;
 }) => {
-  const url = `${OPEN_PROXY_HOST}/rest/2.0/image-classify/v1/vehicle_detect?access_token=${token}`
+  const url = `${BCE_PROXY_HOST}/rest/2.0/image-classify/v1/vehicle_detect?access_token=${token}`
   const rawRes = await post(url, param);
   return rawRes.json();
 }
@@ -134,5 +134,13 @@ export const getRegion = async (params: any) => {
       'Content-Type': 'application/json'
     }
   });
+  return rawRes.json();
+}
+
+export const getParkingDetail = async (params: {
+  parkLocationId: number;
+}) => {
+  const url = `${SERVER_HOST}/park/region/detail`;
+  const rawRes = await get(url, params);
   return rawRes.json();
 }

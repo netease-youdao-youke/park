@@ -1,41 +1,48 @@
 
 <template>
   <div class="dashboard-container">
-    <div class="content" v-for="item, index in data" :key="index">
+    <div class="content">
       <p class="title">
-        <FireOutlined :style="{ color: '#FE525E'}" />
-        {{item.floor}}
+        <FireOutlined :style="{ color: '#FE525E' }" />
+        <span>楼层:</span>
+        <span class="floor-num">{{ props.data.floor }}</span>
       </p>
       <ul class="ul-wrapper">
-         <li class="list-item" v-for="list, idx in item.data" :key="idx">
-           <span>{{list.floorName}}余位：</span>
-           <span><strong>{{list.remain}}</strong> 个</span>
-         </li>
-       </ul>
+        <li class="list-item" v-for="region, idx in props.data.parkRegionDetails" :key="idx">
+          <p class="region-title">{{ region.name }}</p>
+          <div class="region-info">
+            <div class="region-info-item">总车位：{{ region.carportNum }}</div>
+            <div class="region-info-item">剩余车位：{{ region.carportReserveNum }}</div>
+            <div class="region-info-item">已锁车位：{{ region.carportReserveNum }}</div>
+            <div class="region-info-item">占用位数：{{ region.carportUsedNum }}</div>
+          </div>
+        </li>
+      </ul>
     </div>
-   
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { FireOutlined } from '@ant-design/icons-vue'
-import { defineComponent, reactive } from "vue";
-export default defineComponent({
-  name: "App",
-  components: { FireOutlined },
-  props: {
-    data: {
-      type: Array,
-      default: () => []
-    }
-  },
-  setup() {
+import { defineProps } from 'vue';
 
+const props = defineProps<{
+  data: {
+    floor: number;
+    parkRegionDetails: Array<{
+      name: string;
+      carportNum: number;
+      carportReserveNum: number;
+      carportUsableNum: number;
+      carportUsedNum: number;
+    }>
   }
-});
+}>();
+
+
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ul-wrapper {
   display: flex;
   justify-content: space-between;
@@ -50,11 +57,17 @@ export default defineComponent({
   font-weight: 600;
 }
 
+.floor-num {
+  font-size: 30px;
+  font-style: italic;
+  margin-left: 10px;
+}
+
 .content .title::before {
   position: absolute;
   bottom: 3px;
   left: -2px;
-  content: '';
+  content: "";
   height: 4px;
   width: 48px;
   border-radius: 16px;
@@ -62,14 +75,23 @@ export default defineComponent({
 
 .list-item {
   width: 45%;
-  height: 80px;
   display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
+  flex-direction: column;
   margin-bottom: 20px;
   border-radius: 16px;
-  background: #FEE6E5;
-  color: #FE525E;
+  background: #fee6e5;
+  color: #fe525e;
+  padding: 20px;
+  .region-title {
+    width: 100%;
+  }
+  .region-info {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    .region-info-item {
+      width: 50%;
+    }
+  }
 }
 </style>
