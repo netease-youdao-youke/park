@@ -1,6 +1,6 @@
 
 <script  setup lang="ts">
-import exampleVideo from '/output.mp4';
+// import exampleVideo from '/output.mp4';
 import { ref, unref, onMounted, onUnmounted } from 'vue';
 import { analyzeImage, getParkingDetail, initToken, reportVehicle, setBaiduOpenToken, setToken, textToAudio } from '../api';
 import Dashboard from '../components/Dashboard.vue';
