@@ -3,7 +3,7 @@
 
 import exampleVideo from '/output.mp4';
 import { ref, unref } from 'vue';
-import { analyzeImage, initToken, setToken } from '../api';
+import { analyzeImage, initToken, reportVehicle, setToken } from '../api';
 
 type VehicleInfo = {
   type: 'car' | 'carplate',
@@ -91,6 +91,7 @@ const handleTimeUpdate = async (e: Event) => {
     });
     count.value += 1;
     console.log(analyzeData);
+    await reportVehicle(analyzeData);
     drawVehicles(analyzeData.vehicle_info);
   }
 };

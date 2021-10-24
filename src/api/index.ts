@@ -6,6 +6,8 @@ export const setToken = (latestToken: string) => {
 
 export const PROXY_HOST = "http://localhost:3001";
 
+export const SERVER_HOST = "http://10.242.201.184:8888";
+
 
 export const getToken = () => token;
 
@@ -35,15 +37,21 @@ export const get = async (url: string, params: Record<string, any>, init?: Reque
 }
 
 export const post = async (url: string, params: Record<string, any>, init?: RequestInit) => {
-  const rawRes = await fetch(url, {
-    ...init,
+  const requestInit: RequestInit = {
     method: 'POST',
     mode: 'cors',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: qs(params, false),
-  });
+    ...init,
+  };
+  const contentType = requestInit.headers['Content-Type'];
+  if (contentType === 'application/x-www-form-urlencoded') {
+    requestInit.body = qs(params, false);
+  } else if (contentType === 'application/json') {
+    requestInit.body = JSON.stringify(params);
+  }
+  const rawRes = await fetch(url, requestInit);
   const jsonRes = await rawRes.json();
   return jsonRes;
 }
@@ -66,4 +74,14 @@ export const analyzeImage = async (param: {
 }) => {
   const url = `${PROXY_HOST}/api/rest/2.0/image-classify/v1/vehicle_detect?access_token=${token}`
   return await post(url, param);
+}
+
+
+export const reportVehicle = async (params: any) => {
+  const url = `${SERVER_HOST}/monitor/vehicle`;
+  return await post(url, params, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 }
