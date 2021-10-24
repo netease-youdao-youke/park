@@ -2,8 +2,8 @@
 <script  setup lang="ts">
 
 import exampleVideo from '/output.mp4';
-import { ref, unref } from 'vue';
-import { analyzeImage, initToken, reportVehicle, setToken } from '../api';
+import { ref, unref, onMounted } from 'vue';
+import { analyzeImage, initToken, reportVehicle, setBaiduOpenToken, setToken, textToAudio } from '../api';
 
 type VehicleInfo = {
   type: 'car' | 'carplate',
@@ -23,17 +23,31 @@ const canvasRef = ref<HTMLCanvasElement>();
 
 const DETECT_SWITCHER = false;
 
-const TOEKN_KEY = 'baiduToken';
-const TOKEN_INFO = JSON.parse(localStorage.getItem(TOEKN_KEY) || "{}")
+const AI_TOEKN_KEY = 'baiduAIToken';
+const OPEN_TOKEN_KEY = 'baiduOpenToken';
+
+const TOKEN_INFO = JSON.parse(localStorage.getItem(AI_TOEKN_KEY) || "{}")
 let token = TOKEN_INFO.access_token;
 let expires = TOKEN_INFO.expires;
-if (!token || expires >= Date.now()) {
+if (!token || expires <= Date.now()) {
   const res = await initToken();
   res.expires = Date.now() + res.expires_in;
   token = res.access_token;
-  localStorage.setItem(TOEKN_KEY, JSON.stringify(res));
+  localStorage.setItem(AI_TOEKN_KEY, JSON.stringify(res));
 };
 setToken(token);
+
+
+const OPEN_TOKEN_INFO = JSON.parse(localStorage.getItem(OPEN_TOKEN_KEY) || "{}")
+let openToken = OPEN_TOKEN_INFO.access_token;
+let open_expires = OPEN_TOKEN_INFO.expires;
+if (!openToken || open_expires <= Date.now()) {
+  const res = await initToken();
+  res.expires = Date.now() + res.expires_in;
+  openToken = res.access_token;
+  localStorage.setItem(OPEN_TOKEN_KEY, JSON.stringify(res));
+};
+setBaiduOpenToken(openToken);
 
 const drawVehicles = (infoArr: VehicleInfo[]) => {
   const realCanvas = unref(canvasRef);
@@ -91,11 +105,27 @@ const handleTimeUpdate = async (e: Event) => {
     });
     count.value += 1;
     console.log(analyzeData);
-    await reportVehicle(analyzeData);
     drawVehicles(analyzeData.vehicle_info);
+    await reportVehicle({
+      ...analyzeData,
+      cameraId: 'aaa',
+    });
   }
 };
 
+const TTA = async () => {
+  const audio = new Audio();
+  const res = await textToAudio("欢迎网易员工Netease");
+  console.log(res);
+  audio.src = res;
+  audio.oncanplay = () => {
+    audio.play();
+  };
+}
+
+onMounted(() => {
+  // TTA();
+})
 </script>
 
 

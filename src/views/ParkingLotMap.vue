@@ -31,6 +31,6 @@ onMounted(() => {
 <style lang="scss">
 #ooomap-container{
   width: 100vw;
-  height: 10000px;
+  height: 720px;
 }
 </style>
