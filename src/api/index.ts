@@ -55,11 +55,9 @@ export const initToken = async () => {
     client_secret: SECRET_KEY
   }
   const url = `${PROXY_HOST}/api/oauth/2.0/token`;
-  const result = await get(url, params, {
+  return await get(url, params, {
     mode: 'cors'
   });
-  const jsonRes = await result.json();
-  return jsonRes;
 }
 
 export const analyzeImage = async (param: {
@@ -67,7 +65,5 @@ export const analyzeImage = async (param: {
   image?: string;
 }) => {
   const url = `${PROXY_HOST}/api/rest/2.0/image-classify/v1/vehicle_detect?access_token=${token}`
-  const rawRes = await post(url, param);
-  const jsonRes = await rawRes.json();
-  return jsonRes;
+  return await post(url, param);
 }

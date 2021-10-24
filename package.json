@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "server-dev": "node server/index.js 3002",
+    "server-dev": "node server/index.js 3001",
     "build": "vue-tsc --noEmit && vite build",
     "serve": "vite preview"
   },
