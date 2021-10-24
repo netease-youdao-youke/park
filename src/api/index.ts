@@ -116,7 +116,7 @@ export const textToAudio = async (text: string) => {
   const appKey = '72c4c147b1461fc1';
   const secretKey = '318KQ1HX4Evts847qt7q5bvPG38nr9CL';
   const uuid = 'd93d7566-349f-11ec-b400-0a80ff2603de';
-  const rawRes =  await post(url, {
+  const rawRes = await post(url, {
     q: text,
     langType: "zh-CHS",
     appKey: appKey,
@@ -125,4 +125,14 @@ export const textToAudio = async (text: string) => {
   })
   const data = await rawRes.blob();
   return URL.createObjectURL(data);
+}
+
+export const getRegion = async (params: any) => {
+  const url = `${SERVER_HOST}/park/getRegion`;
+  const rawRes = await get(url, params, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  return rawRes.json();
 }
