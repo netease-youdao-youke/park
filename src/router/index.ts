@@ -2,10 +2,11 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
 import Presentation from '../views/Presentation.vue';
 import ParkingLotMap from '../views/ParkingLotMap.vue';
+import SimulationIntoCar from '../views/SimulationIntoCar.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
+    path: "/home",
     name: "Home",
     component: Home,
     meta: {
@@ -21,6 +22,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/parkingLot',
     name: "/parkingLot",
     component: ParkingLotMap,
+  },
+  {
+    path: '/',
+    name: "SimulationIntoCar",
+    component: SimulationIntoCar,
   }
 ];
 
