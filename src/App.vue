@@ -1,6 +1,8 @@
 <template>
-   <a-config-provider :locale="locale">
-     <router-view></router-view>
+  <a-config-provider :locale="locale">
+    <suspense>
+      <router-view></router-view>
+    </suspense>
   </a-config-provider>
 </template>
 <script lang="ts">
