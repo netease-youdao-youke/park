@@ -19,63 +19,54 @@ export default defineComponent({
 		});
 		const router = useRouter();
 
-		const TTA = async () => {
+		const TTA = async (data: any) => {
 			const audio = new Audio();
-			const text = "欢迎员工车辆京A8 8 8 8 8号车牌进入园区正在为您推荐车位请您稍等";
+			const text = `欢迎员工车辆进入园区,已为您推荐${data.data.name}车位, 即将为您导航`;
 			const res = await textToAudio(text);
+			let modal: any = null;
 			audio.src = res;
 			audio.oncanplay = () => {
 				audio.play();
+				modal = Modal.success({
+					title: () => "识别成功",
+					content: () =>
+						h("div", {}, [
+							h("p", "欢迎员工车辆京 A88888 号车牌进入园区，"),
+							h("p", `已为您推荐${data.data.name}车位即将为您导航`),
+						]),
+				});
 			};
 			// 监听音频播放结束
 			audio.addEventListener(
 				"ended",
 				async function () {
-					const params = {
-						parkLocationId: "1",
-						plate: "da",
-						carType: "car",
-					};
-
-					// 获取车位推荐
-					const regionRes = await getRegion(params);
 					const timer2 = setTimeout(() => {
 						clearTimeout(timer2);
-						modal.update({
-							title: "推荐成功",
-							content: `已为您推荐${regionRes.data.name}的车位，即将为您导航`,
+						modal.destroy();
+						router.push({
+							path: "/parkingLot",
+							query: {
+								name: data.data.name,
+							},
 						});
-
-						const timer3 = setTimeout(() => {
-							modal.destroy();
-							clearTimeout(timer3);
-							router.push({
-								path: "/parkingLot",
-								query: {
-									name: regionRes.data.name,
-								},
-							});
-						}, 1500);
-					}, 1500);
+					}, 1000);
 				},
 				false
 			);
-			const modal = Modal.success({
-				title: () => "识别成功",
-				content: () =>
-					h("div", {}, [
-						h("p", "欢迎京 A88888 号车牌进入园区，"),
-						h("p", "正在为您推荐车位，请您稍等..."),
-					]),
-			});
 		};
 
 		const handleReconize = () => {
 			state.spinning = true;
-			const timer = setTimeout(() => {
+			const timer = setTimeout(async () => {
 				clearTimeout(timer);
 				state.spinning = false;
-				TTA();
+				const params = {
+					parkLocationId: "1",
+					plate: "da",
+					carType: "car",
+				};
+				const regionRes = await getRegion(params);
+				TTA(regionRes);
 			}, 1000);
 		};
 
