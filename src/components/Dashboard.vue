@@ -12,7 +12,7 @@
           <p class="region-title">{{ region.name }}</p>
           <div class="region-info">
             <div class="region-info-item">总车位：{{ region.carportNum }}</div>
-            <div class="region-info-item">剩余车位：{{ region.carportReserveNum }}</div>
+            <div class="region-info-item">剩余车位：{{ region.carportUsableNum }}</div>
             <div class="region-info-item">已锁车位：{{ region.carportReserveNum }}</div>
             <div class="region-info-item">占用位数：{{ region.carportUsedNum }}</div>
           </div>
