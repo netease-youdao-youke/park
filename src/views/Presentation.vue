@@ -1,6 +1,6 @@
 
 <script  setup lang="ts">
-// import exampleVideo from '/output.mp4';
+import exampleVideo from '/output.mp4';
 import { ref, unref, onMounted, onUnmounted } from 'vue';
 import { analyzeImage, getParkingDetail, initToken, reportVehicle, setBaiduOpenToken, setToken, textToAudio } from '../api';
 import Dashboard from '../components/Dashboard.vue';
@@ -107,12 +107,9 @@ const handleTimeUpdate = async (e: Event) => {
       return;
     }
     let imageBase64 = url.replace(/\+/g, "%2B").replace(/\=/g, "&3D");
-    return;
     const analyzeData = await analyzeImage({
       image: imageBase64,
     });
-    count.value += 1;
-    console.log(analyzeData);
     drawVehicles(analyzeData.vehicle_info);
     await reportVehicle({
       ...analyzeData,
@@ -121,24 +118,11 @@ const handleTimeUpdate = async (e: Event) => {
   }
 };
 
-const TTA = async () => {
-	const audio = new Audio();
-	const res = await textToAudio("欢迎网易员工Netease");
-	console.log(res);
-	audio.src = res;
-	audio.oncanplay = () => {
-		audio.play();
-	};
-};
-
 const updateParkingInfo = async () => {
   const res = await getParkingDetail({ parkLocationId: 1 });
   console.log(res);
   parkingData.value = res.data.parkFloorDetails;
 }
-onMounted(() => {
-  // TTA();
-});
 
 onMounted(() => {
   loopTimer.value = window.setInterval(updateParkingInfo, 1000);
